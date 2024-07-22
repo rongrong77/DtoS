@@ -1,0 +1,55 @@
+{
+    "dataset_name": "DtoS",
+    "dataset_path": "./Datasets/",
+    "dl_dataset_path": "./Datasets/",
+    "dl_dataset": "onevalue_DCOP.p",
+    "dynamic_labels": ["APIA","APRCIA"],
+    "static_labels": ["DCOP"],
+    "selected_trial_type": ["Normal","C1", "C2"],
+    "segmentation_method": "fixedwindow",
+    "target_padding_length": 520,
+    "resample": false,
+    "opensim_filter": false,
+    "imu_filter": true,
+  
+    "load_model": true,
+    "save_model": true,
+    "tuning": false,
+    "individual_plot": false,
+  
+  
+  
+    "train_subjects":["Subject01", "Subject02", "Subject03","Subject04","Subject06","Subject07", "Subject08", "Subject09", "Subject10","Subject11", "Subject12", "Subject13"],
+    "valid_subjects":["Subject01", "Subject08"],
+    "test_subjects": ["Subject05", "Subject14"],
+    "model_train_activity": ["Normal","C1", "C2"],
+    "train_activity": ["Normal","C1", "C2"],
+    "test_activity":["Normal","C1", "C2"],
+    "valid_activity":["Normal","C1", "C2"],
+    "device": "cpu",
+    "model_name": "bilstm",
+    "classification": false,
+    "trainable_layers": ["fc1", "fc2_1", "fc2_2", "fc2_3"],
+    "optimizer_name": "Adam",
+    "l2_weight_decay_status": true,
+    "l2_weight_decay": 0.001,
+  
+    "bilstm_hidden_size": 64,
+    "bilstm_num_layers": 3,
+    "bilstm_dropout_p": 0.5,
+    "output_size1": 1600,
+  
+    "tsai_d_model": 128,
+    "tsai_n_heads": 16,
+    "tsai_d_ff": 256,
+    "tsai_n_layers": 3,
+    "tsai_res_dropout_p": 0.5,
+    "tsai_fc_dropout_p": 0.5,
+  
+    "learning_rate": 0.001,
+    "n_epoch": 100,
+    "batch_size": 64,
+    "loss": "MSE",
+    "loss_weight": [1, 1, 1],
+    "nfold": 5
+  }

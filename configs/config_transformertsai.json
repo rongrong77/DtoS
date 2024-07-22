@@ -1,0 +1,14 @@
+{
+  "dynamic_labels": ["APIA","APRICA"],
+  "static_labels": ["ACOP"],
+  "classification": false,
+  "target_padding_length": 256,
+
+  "tsai_d_model": 64,
+  "tsai_n_heads": 16,
+  "tsai_d_ff": 256,
+  "tsai_n_layers": 3,
+  "tsai_activation": "gelu",
+  "tsai_res_dropout_p": 0.2,
+  "tsai_fc_dropout_p": 0.2
+}
