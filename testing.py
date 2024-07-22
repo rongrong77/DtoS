@@ -13,7 +13,7 @@ class Test:
         self.weight = self.config['loss_weight']
         self.model_name = self.config['model_name']
         self.classification = config['classification']
-        self.n_output = len(self.config['selected_opensim_labels'])
+        self.n_output = len(self.config['static_labels'])
         if not self.n_output == len(self.weight):
             self.weight = None
         modelbuilder_handler = ModelBuilder(self.config)
@@ -42,17 +42,32 @@ class Test:
                 x = x.to(device)
                 y = y.to(device)
                 start_time = time.time()
-                y_pred = model(x.float())
+                y_pred = model(x.float()).squeeze()
                 inference_times.append(time.time() - start_time)
-                loss = criterion(y, y_pred)
+                loss = criterion(y_pred, y)
                 test_loss.append(loss.item())
-                test_preds.append(y_pred)
-                test_trues.append(y)
-            test_loss = torch.mean(torch.tensor(test_loss))
-            print('Test Accuracy of the model: {}'.format(test_loss))
-        # wandb.log({"inference time": np.mean(np.array(inference_times))})
-        # wandb.log({"Test Loss": test_loss})
-        return torch.cat(test_preds, 0), torch.cat(test_trues, 0), test_loss
+                test_preds.append(y_pred.cpu().numpy())
+                test_trues.append(y.cpu().numpy())
+            avg_test_loss = torch.tensor(test_loss).mean().item()
+
+            # Convert lists to numpy arrays
+            test_preds = np.concatenate(test_preds)
+            test_trues = np.concatenate(test_trues)
+
+            # Calculate additional metrics
+            absolute_errors = np.abs(test_preds - test_trues)
+            mae = np.mean(absolute_errors)
+            mape = np.mean(absolute_errors / (test_trues + 1e-10)) * 100  # Adding epsilon to avoid division by zero
+
+            print(f'Test Loss of the model: {avg_test_loss}')
+            print(f'Mean Absolute Error (MAE): {mae}')
+            print(f'Mean Absolute Percentage Error (MAPE): {mape}%')
+
+            # Optionally, log inference times or other metrics
+            avg_inference_time = np.mean(inference_times)
+            print(f'Average Inference Time per Batch: {avg_inference_time} seconds')
+
+        return torch.tensor(test_preds), torch.tensor(test_trues), avg_test_loss
 
     def testing_transformer(self, model, test_dataloader, criterion, device):
         model.eval()
@@ -64,16 +79,23 @@ class Test:
             for x, y in test_dataloader:
                 x = x.to(device)
                 y = y.to(device)
-                # starter, ender = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
                 start_time = time.time()
                 y_pred = model(x.float())  # just for transformer
-                inference_times.append(time.time()-start_time)
+                inference_times.append(time.time() - start_time)
                 loss = criterion(y, y_pred.to(device))
                 test_loss.append(loss.item())
                 test_preds.append(y_pred)
                 test_trues.append(y)
-            test_loss = torch.mean(torch.tensor(test_loss))
-            print('Test Accuracy of the model: {}'.format(test_loss))
-        # wandb.log({"Test Loss": test_loss})
-        # wandb.log({"inference time": np.mean(np.array(inference_times))})
-        return torch.cat(test_preds, 0), torch.cat(test_trues, 0), test_loss
+            avg_test_loss = torch.tensor(test_loss).mean().item()
+
+            # Convert lists to numpy arrays
+            test_preds = torch.cat(test_preds, 0)
+            test_trues = torch.cat(test_trues, 0)
+
+            print(f'Test Loss of the model: {avg_test_loss}')
+
+        return test_preds, test_trues, avg_test_loss
+
+    def testing_with_classification(self, model, test_dataloader, criterion, device):
+        # Implement your classification-specific testing logic here
+        pass
